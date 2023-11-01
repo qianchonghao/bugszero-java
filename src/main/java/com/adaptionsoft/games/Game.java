@@ -8,14 +8,14 @@ public class Game {
     int[] places = new int[6];
     int[] purses  = new int[6];
     boolean[] inPenaltyBox  = new boolean[6];
-
+	boolean isGettingOutOfPenaltyBox;
     LinkedList popQuestions = new LinkedList();
     LinkedList scienceQuestions = new LinkedList();
     LinkedList sportsQuestions = new LinkedList();
     LinkedList rockQuestions = new LinkedList();
 
     int currentPlayer = 0;
-    boolean isGettingOutOfPenaltyBox;
+
 
     public Game(){
     	for (int i = 0; i < 50; i++) {
@@ -55,25 +55,36 @@ public class Game {
 		System.out.println(players.get(currentPlayer) + " is the current player");
 		System.out.println("They have rolled a " + roll);
 
-		if (inPenaltyBox[currentPlayer]) {
-			if (roll % 2 != 0) {
+		if (isPenaltyBox()) {
+			if (canGetOutOfPenaltyBox(roll)) {
+				// @Chamber todo: isGettingOutOfPenaltyBox = canGetOutOfPenaltyBox(roll)
 				isGettingOutOfPenaltyBox = true;
-
 				System.out.println(players.get(currentPlayer) + " is getting out of the penalty box");
 				movePlayerAndAskQuestion(roll);
 			} else {
 				System.out.println(players.get(currentPlayer) + " is not getting out of the penalty box");
 				isGettingOutOfPenaltyBox = false;
-				}
-
+			}
 		} else {
-
 			movePlayerAndAskQuestion(roll);
 		}
 
 	}
 
+	private static boolean canGetOutOfPenaltyBox(int roll) {
+		return roll % 2 != 0;
+	}
+
+	private boolean isPenaltyBox() {
+		return inPenaltyBox[currentPlayer];
+	}
+
 	private void movePlayerAndAskQuestion(int roll) {
+		movePlayer(roll);
+		askQuestion();
+	}
+
+	private void movePlayer(int roll) {
 		places[currentPlayer] = places[currentPlayer] + roll;
 		if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
 
@@ -81,7 +92,6 @@ public class Game {
                 + "'s new location is "
                 + places[currentPlayer]);
 		System.out.println("The category is " + currentCategory());
-		askQuestion();
 	}
 
 	private void askQuestion() {
@@ -110,52 +120,54 @@ public class Game {
 	}
 
 	public boolean wasCorrectlyAnswered() {
-		if (inPenaltyBox[currentPlayer]){
+		if (isPenaltyBox()){
 			if (isGettingOutOfPenaltyBox) {
-				System.out.println("Answer was correct!!!!");
-				currentPlayer++;
-				if (currentPlayer == players.size()) currentPlayer = 0;
-				purses[currentPlayer]++;
-				System.out.println(players.get(currentPlayer)
-						+ " now has "
-						+ purses[currentPlayer]
-						+ " Gold Coins.");
-
-				boolean winner = didPlayerWin();
-
-				return winner;
+				// @Chamber todo: 此处有bug，顺序是：1. 判断是否回答正确 2. 给予奖金 3. 移动至下位玩家
+				nextPlayer();
+				didAnswerCorrectV1();
+				return didPlayerWin();
 			} else {
-				currentPlayer++;
-				if (currentPlayer == players.size()) currentPlayer = 0;
+				nextPlayer();
 				return true;
 			}
-
-
-
 		} else {
-
-			System.out.println("Answer was corrent!!!!");
-			purses[currentPlayer]++;
-			System.out.println(players.get(currentPlayer)
-					+ " now has "
-					+ purses[currentPlayer]
-					+ " Gold Coins.");
-
+			didAnswerCorrectV2();
 			boolean winner = didPlayerWin();
-			currentPlayer++;
-			if (currentPlayer == players.size()) currentPlayer = 0;
-
+			nextPlayer();
 			return winner;
 		}
 	}
 
+	private void didAnswerCorrectV1() {
+		System.out.println("Answer was correct!!!!");
+		purses[currentPlayer]++;
+		System.out.println(players.get(currentPlayer)
+				+ " now has "
+				+ purses[currentPlayer]
+				+ " Gold Coins.");
+	}
+
+	private void nextPlayer() {
+		currentPlayer++;
+		if (currentPlayer == players.size()) currentPlayer = 0;
+	}
+
+	private void didAnswerCorrectV2() {
+		// @Chamber todo : 单词错误 correct
+		System.out.println("Answer was corrent!!!!");
+		purses[currentPlayer]++;
+		System.out.println(players.get(currentPlayer)
+				+ " now has "
+				+ purses[currentPlayer]
+				+ " Gold Coins.");
+	}
+
+	// @Chamber 错误回答
 	public boolean wrongAnswer(){
 		System.out.println("Question was incorrectly answered");
 		System.out.println(players.get(currentPlayer)+ " was sent to the penalty box");
 		inPenaltyBox[currentPlayer] = true;
-
-		currentPlayer++;
-		if (currentPlayer == players.size()) currentPlayer = 0;
+		nextPlayer();
 		return true;
 	}
 
