@@ -11,11 +11,12 @@ public class Game {
 	// 对于要抽取出去的属性分为 set & get两种使用方式
 
 	// @Chamber todo: 显然问题的种类是会拓展的，那么在拓展种类时，如何避免霰弹式修改
-    LinkedList popQuestions = new LinkedList();
-    LinkedList scienceQuestions = new LinkedList();
-    LinkedList sportsQuestions = new LinkedList();
-    LinkedList rockQuestions = new LinkedList();
+//    LinkedList popQuestions = new LinkedList();
+//    LinkedList scienceQuestions = new LinkedList();
+//    LinkedList sportsQuestions = new LinkedList();
+//    LinkedList rockQuestions = new LinkedList();
 
+	QuestionPool questionPool;
     int currentPlayer = 0;
 
 	// @Chamber todo: del
@@ -26,21 +27,11 @@ public class Game {
 			oldGame = new OldGame();
 			return;
 		}
-
-    	for (int i = 0; i < 50; i++) {
-			popQuestions.addLast("Pop Question " + i);
-			scienceQuestions.addLast(("Science Question " + i));
-			sportsQuestions.addLast(("Sports Question " + i));
-			rockQuestions.addLast(createRockQuestion(i));
-    	}
-    }
-
-	private String createRockQuestion(int index){
-		return "Rock Question " + index;
+		questionPool = new QuestionPool();
 	}
 
 	private boolean isPlayable() {
-		return (howManyPlayers() >= 2);
+		return (players.size() >= 2);
 	}
 
 	public boolean add(String playerName) {
@@ -49,17 +40,10 @@ public class Game {
 			return oldGame.add(playerName);
 		}
 
-
 	    players.add(new Player(playerName));
-
-
 	    System.out.println(playerName + " was added");
 	    System.out.println("They are player number " + players.size());
 		return true;
-	}
-
-	private int howManyPlayers() {
-		return players.size();
 	}
 
 	public void roll(int roll) {
@@ -73,7 +57,7 @@ public class Game {
 		System.out.println("They have rolled a " + roll);
 
 		if (getInPenaltyBox()) {
-			if (canGetOutOfPenaltyBox(roll)) {
+			if (roll % 2 != 0) {
 				// @Chamber todo: isGettingOutOfPenaltyBox = canGetOutOfPenaltyBox(roll)
 				setGettingOutOfPenaltyBox(true);
 				System.out.println(getPlayerName() + " is getting out of the penalty box");
@@ -88,42 +72,12 @@ public class Game {
 
 	}
 
-	private static boolean canGetOutOfPenaltyBox(int roll) {
-		return roll % 2 != 0;
-	}
-
 	private void movePlayerAndAskQuestion(int roll) {
 		currentPlayer().moveForwardByRoll(roll);
-		System.out.println("The category is " + currentCategory());
-		askQuestion();
+		questionPool.askQuestion(currentPlayer().getPosition());
 	}
 
-	private void askQuestion() {
-		if (currentCategory() == "Pop")
-			System.out.println(popQuestions.removeFirst());
-		if (currentCategory() == "Science")
-			System.out.println(scienceQuestions.removeFirst());
-		if (currentCategory() == "Sports")
-			System.out.println(sportsQuestions.removeFirst());
-		if (currentCategory() == "Rock")
-			System.out.println(rockQuestions.removeFirst());
-	}
-
-
-	private String currentCategory() {
-		if (getPosition() == 0) return "Pop";
-		if (getPosition() == 4) return "Pop";
-		if (getPosition() == 8) return "Pop";
-		if (getPosition() == 1) return "Science";
-		if (getPosition() == 5) return "Science";
-		if (getPosition() == 9) return "Science";
-		if (getPosition() == 2) return "Sports";
-		if (getPosition() == 6) return "Sports";
-		if (getPosition() == 10) return "Sports";
-		return "Rock";
-	}
-
-	public boolean wasCorrectlyAnswered() {
+	public boolean correctAnswer() {
 		// @Chamber todo: del
 		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
 			return oldGame.wasCorrectlyAnswered();
@@ -147,17 +101,6 @@ public class Game {
 		}
 	}
 
-
-	private void nextPlayer() {
-		currentPlayer++;
-		if (currentPlayer == players.size()) currentPlayer = 0;
-	}
-
-	private Player currentPlayer() {
-		return players.get(currentPlayer);
-	}
-
-	// @Chamber 错误回答
 	public boolean wrongAnswer(){
 		// @Chamber todo: del
 		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
@@ -169,6 +112,14 @@ public class Game {
 		return true;
 	}
 
+	private void nextPlayer() {
+		currentPlayer++;
+		if (currentPlayer == players.size()) currentPlayer = 0;
+	}
+
+	private Player currentPlayer() {
+		return players.get(currentPlayer);
+	}
 
 	private String getPlayerName() {
 		return currentPlayer().getName();

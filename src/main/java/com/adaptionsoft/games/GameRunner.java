@@ -2,7 +2,6 @@
 package com.adaptionsoft.games;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.util.List;
 import java.util.Random;
@@ -34,7 +33,7 @@ public class GameRunner {
 			if (isWrongAnswer(rand)) {
 				notAWinner = aGame.wrongAnswer();
 			} else {
-				notAWinner = aGame.wasCorrectlyAnswered();
+				notAWinner = aGame.correctAnswer();
 			}
 		} while (notAWinner);
 	}
