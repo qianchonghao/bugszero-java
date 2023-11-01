@@ -6,14 +6,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Game {
-    ArrayList players = new ArrayList();
-	// @Chamber todo: 以下四个属性待抽取：places，purses，inPenaltyBox，isGettingOutOfPenaltyBox. 双写，单读
-    int[] places = new int[6];
-    int[] purses  = new int[6];
-
+    ArrayList<Player> players = new ArrayList();
+	// @Chamber todo: 以下四个属性待抽取：places，purses，inPenaltyBox，isGettingOutOfPenaltyBox
 	// 对于要抽取出去的属性分为 set & get两种使用方式
-    boolean[] inPenaltyBox  = new boolean[6];
-	boolean isGettingOutOfPenaltyBox;
+
+	// @Chamber todo: 显然问题的种类是会拓展的，那么在拓展种类时，如何避免霰弹式修改
     LinkedList popQuestions = new LinkedList();
     LinkedList scienceQuestions = new LinkedList();
     LinkedList sportsQuestions = new LinkedList();
@@ -53,10 +50,8 @@ public class Game {
 		}
 
 
-	    players.add(playerName);
-	    places[howManyPlayers()] = 0;
-	    purses[howManyPlayers()] = 0;
-	    inPenaltyBox[howManyPlayers()] = false;
+	    players.add(new Player(playerName));
+
 
 	    System.out.println(playerName + " was added");
 	    System.out.println("They are player number " + players.size());
@@ -74,18 +69,18 @@ public class Game {
 			return;
 		}
 
-		System.out.println(players.get(currentPlayer) + " is the current player");
+		System.out.println(getPlayerName() + " is the current player");
 		System.out.println("They have rolled a " + roll);
 
-		if (isPenaltyBox()) {
+		if (getInPenaltyBox()) {
 			if (canGetOutOfPenaltyBox(roll)) {
 				// @Chamber todo: isGettingOutOfPenaltyBox = canGetOutOfPenaltyBox(roll)
-				isGettingOutOfPenaltyBox = true;
-				System.out.println(players.get(currentPlayer) + " is getting out of the penalty box");
+				setGettingOutOfPenaltyBox(true);
+				System.out.println(getPlayerName() + " is getting out of the penalty box");
 				movePlayerAndAskQuestion(roll);
 			} else {
-				System.out.println(players.get(currentPlayer) + " is not getting out of the penalty box");
-				isGettingOutOfPenaltyBox = false;
+				System.out.println(getPlayerName() + " is not getting out of the penalty box");
+				setGettingOutOfPenaltyBox(false);
 			}
 		} else {
 			movePlayerAndAskQuestion(roll);
@@ -93,13 +88,12 @@ public class Game {
 
 	}
 
+
 	private static boolean canGetOutOfPenaltyBox(int roll) {
 		return roll % 2 != 0;
 	}
 
-	private boolean isPenaltyBox() {
-		return inPenaltyBox[currentPlayer];
-	}
+
 
 	private void movePlayerAndAskQuestion(int roll) {
 		movePlayer(roll);
@@ -107,12 +101,13 @@ public class Game {
 	}
 
 	private void movePlayer(int roll) {
-		places[currentPlayer] = places[currentPlayer] + roll;
-		if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
 
-		System.out.println(players.get(currentPlayer)
+		setPosition(getPosition()+roll);
+		if (getPosition() > 11) setPosition(getPosition() - 12) ;
+
+		System.out.println(getPlayerName()
                 + "'s new location is "
-                + places[currentPlayer]);
+                + getPosition());
 		System.out.println("The category is " + currentCategory());
 	}
 
@@ -129,15 +124,15 @@ public class Game {
 
 
 	private String currentCategory() {
-		if (places[currentPlayer] == 0) return "Pop";
-		if (places[currentPlayer] == 4) return "Pop";
-		if (places[currentPlayer] == 8) return "Pop";
-		if (places[currentPlayer] == 1) return "Science";
-		if (places[currentPlayer] == 5) return "Science";
-		if (places[currentPlayer] == 9) return "Science";
-		if (places[currentPlayer] == 2) return "Sports";
-		if (places[currentPlayer] == 6) return "Sports";
-		if (places[currentPlayer] == 10) return "Sports";
+		if (getPosition() == 0) return "Pop";
+		if (getPosition() == 4) return "Pop";
+		if (getPosition() == 8) return "Pop";
+		if (getPosition() == 1) return "Science";
+		if (getPosition() == 5) return "Science";
+		if (getPosition() == 9) return "Science";
+		if (getPosition() == 2) return "Sports";
+		if (getPosition() == 6) return "Sports";
+		if (getPosition() == 10) return "Sports";
 		return "Rock";
 	}
 
@@ -147,8 +142,8 @@ public class Game {
 			return oldGame.wasCorrectlyAnswered();
 		}
 
-		if (isPenaltyBox()){
-			if (isGettingOutOfPenaltyBox) {
+		if (getInPenaltyBox()){
+			if (isGettingOutOfPenaltyBox()) {
 				// @Chamber todo: 此处有bug，顺序是：1. 判断是否回答正确 2. 给予奖金 3. 移动至下位玩家
 				nextPlayer();
 				didAnswerCorrectV1();
@@ -167,10 +162,10 @@ public class Game {
 
 	private void didAnswerCorrectV1() {
 		System.out.println("Answer was correct!!!!");
-		purses[currentPlayer]++;
-		System.out.println(players.get(currentPlayer)
+		setScore(getScore()+1);
+		System.out.println(getPlayerName()
 				+ " now has "
-				+ purses[currentPlayer]
+				+ getScore()
 				+ " Gold Coins.");
 	}
 
@@ -182,10 +177,10 @@ public class Game {
 	private void didAnswerCorrectV2() {
 		// @Chamber todo : 单词错误 correct
 		System.out.println("Answer was corrent!!!!");
-		purses[currentPlayer]++;
-		System.out.println(players.get(currentPlayer)
+		setScore(getScore()+1);
+		System.out.println(getPlayerName()
 				+ " now has "
-				+ purses[currentPlayer]
+				+ getScore()
 				+ " Gold Coins.");
 	}
 
@@ -197,14 +192,49 @@ public class Game {
 		}
 
 		System.out.println("Question was incorrectly answered");
-		System.out.println(players.get(currentPlayer)+ " was sent to the penalty box");
-		inPenaltyBox[currentPlayer] = true;
+		System.out.println(getPlayerName() + " was sent to the penalty box");
+		setInPenaltyBox(true);
 		nextPlayer();
 		return true;
 	}
-
-
+	
 	private boolean didPlayerWin() {
-		return !(purses[currentPlayer] == 6);
+		return !(getScore() == 6);
+	}
+
+	private String getPlayerName() {
+		return players.get(currentPlayer).getName();
+	}
+
+	private boolean getInPenaltyBox() {
+		return players.get(currentPlayer).getInPenaltyBox();
+	}
+
+	private void setInPenaltyBox(Boolean value){
+		players.get(currentPlayer).setInPenaltyBox(value);
+	}
+	
+	private Integer getPosition(){
+		return players.get(currentPlayer).getPosition();
+	}
+
+	private void setPosition(Integer position){
+		players.get(currentPlayer).setPosition(position);
+	}
+
+	private Integer getScore() {
+		return players.get(currentPlayer).getScore();
+	}
+
+	private void setScore(Integer score){
+		players.get(currentPlayer).setScore(score);
+	}
+
+	private boolean isGettingOutOfPenaltyBox() {
+		return players.get(currentPlayer).getGettingOutOfPenaltyBox();
+	}
+
+	private void setGettingOutOfPenaltyBox(Boolean value) {
+		players.get(currentPlayer).setGettingOutOfPenaltyBox(value);
 	}
 }
