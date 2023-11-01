@@ -29,12 +29,17 @@ public class GameRunner {
 		}
 
 		do {
-			aGame.roll(rollDice(rand));
-			if (isWrongAnswer(rand)) {
-				notAWinner = aGame.wrongAnswer();
-			} else {
-				notAWinner = aGame.correctAnswer();
+			Boolean notInPenalty = aGame.roll(rollDice(rand));
+			if (notInPenalty) {
+				if (isWrongAnswer(rand)) {
+					notAWinner = aGame.wrongAnswer();
+				} else {
+					notAWinner = aGame.correctAnswer();
+				}
 			}
+
+			aGame.nextPlayer();
+
 		} while (notAWinner);
 	}
 

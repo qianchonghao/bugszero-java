@@ -45,30 +45,26 @@ public class Game {
 		return true;
 	}
 
-	public void roll(int roll) {
+	public Boolean roll(int roll) {
 		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			oldGame.roll(roll);
-			return;
-		}
+
 
 		System.out.println(getPlayerName() + " is the current player");
 		System.out.println("They have rolled a " + roll);
 
 		if (getInPenaltyBox()) {
 			if (roll % 2 != 0) {
-				// @Chamber todo: isGettingOutOfPenaltyBox = canGetOutOfPenaltyBox(roll)
-				setGettingOutOfPenaltyBox(true);
-				System.out.println(getPlayerName() + " is getting out of the penalty box");
+				currentPlayer().outOfPenalty();
 				movePlayerAndAskQuestion(roll);
+				return true;
 			} else {
-				System.out.println(getPlayerName() + " is not getting out of the penalty box");
-				setGettingOutOfPenaltyBox(false);
+				currentPlayer().stillInPenalty();
+				return false;
 			}
 		} else {
 			movePlayerAndAskQuestion(roll);
+			return true;
 		}
-
 	}
 
 	private void movePlayerAndAskQuestion(int roll) {
@@ -83,10 +79,9 @@ public class Game {
 		}
 
 		Boolean notWinner = true;
-		if (!getInPenaltyBox() || isGettingOutOfPenaltyBox()){
+		if (!getInPenaltyBox()){
 			notWinner = doAnswerCorrect();
 		}
-		nextPlayer();
 		return notWinner;
 	}
 
@@ -102,11 +97,10 @@ public class Game {
 		}
 
 		currentPlayer().wrongAnswer();
-		nextPlayer();
 		return true;
 	}
 
-	private void nextPlayer() {
+	void nextPlayer() {
 		currentPlayer++;
 		if (currentPlayer == players.size()) currentPlayer = 0;
 	}
@@ -123,16 +117,4 @@ public class Game {
 		return currentPlayer().getInPenaltyBox();
 	}
 
-	// @Chamber todo: extract PositionManager, then del
-	private Integer getPosition(){
-		return currentPlayer().getPosition();
-	}
-
-	private boolean isGettingOutOfPenaltyBox() {
-		return currentPlayer().getGettingOutOfPenaltyBox();
-	}
-
-	private void setGettingOutOfPenaltyBox(Boolean value) {
-		currentPlayer().setGettingOutOfPenaltyBox(value);
-	}
 }
