@@ -75,9 +75,8 @@ public class Player {
         inPenaltyBox = true;
     }
 
-    public void correctAnswerV2() {
-        // @Chamber todo : 单词错误 correct
-        System.out.println("Answer was corrent!!!!");
+    public void correctAnswer() {
+        System.out.println("Answer was correct!!!!");
         score++;
         System.out.println(name
                 + " now has "
@@ -85,12 +84,11 @@ public class Player {
                 + " Gold Coins.");
     }
 
-    public void correctAnswerV1() {
-        System.out.println("Answer was correct!!!!");
-        score++;
-        System.out.println(name
-                + " now has "
-                + getScore()
-                + " Gold Coins.");
+    public void getOutOfPenalty(){
+        inPenaltyBox = false;
+    }
+
+    public void inPenalty(){
+        inPenaltyBox = true;
     }
 }

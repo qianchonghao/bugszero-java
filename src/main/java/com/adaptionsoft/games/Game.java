@@ -3,7 +3,6 @@ package com.adaptionsoft.games;
 import com.adaptionsoft.games.contants.Constants;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class Game {
     ArrayList<Player> players = new ArrayList();
@@ -59,15 +58,15 @@ public class Game {
 		if (getInPenaltyBox()) {
 			if (roll % 2 != 0) {
 				// @Chamber todo: isGettingOutOfPenaltyBox = canGetOutOfPenaltyBox(roll)
-				setGettingOutOfPenaltyBox(true);
+				currentPlayer().getOutOfPenalty();
 				System.out.println(getPlayerName() + " is getting out of the penalty box");
 				movePlayerAndAskQuestion(roll);
 			} else {
 				System.out.println(getPlayerName() + " is not getting out of the penalty box");
-				setGettingOutOfPenaltyBox(false);
+				currentPlayer().inPenalty();
 			}
 		} else {
-			movePlayerAndAskQuestion(roll);
+//			movePlayerAndAskQuestion(roll);
 		}
 
 	}
@@ -83,22 +82,20 @@ public class Game {
 			return oldGame.wasCorrectlyAnswered();
 		}
 
-		if (getInPenaltyBox()){
-			if (isGettingOutOfPenaltyBox()) {
-				// @Chamber todo: 此处有bug，顺序是：1. 判断是否回答正确 2. 给予奖金 3. 移动至下位玩家
-				nextPlayer();
-				currentPlayer().correctAnswerV1();
-				return currentPlayer().isWinner();
-			} else {
-				nextPlayer();
-				return true;
-			}
+		if (getInPenaltyBox()) {
+			return doAnswerCorrect();
 		} else {
-			currentPlayer().correctAnswerV2();
-			boolean winner = currentPlayer().isWinner();
 			nextPlayer();
-			return winner;
+			return true;
 		}
+
+	}
+
+	private boolean doAnswerCorrect() {
+		currentPlayer().correctAnswer();
+		boolean winner = currentPlayer().isWinner();
+		nextPlayer();
+		return winner;
 	}
 
 	public boolean wrongAnswer(){
@@ -138,7 +135,4 @@ public class Game {
 		return currentPlayer().getGettingOutOfPenaltyBox();
 	}
 
-	private void setGettingOutOfPenaltyBox(Boolean value) {
-		currentPlayer().setGettingOutOfPenaltyBox(value);
-	}
 }
