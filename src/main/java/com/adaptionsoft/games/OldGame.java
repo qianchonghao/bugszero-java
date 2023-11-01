@@ -1,13 +1,11 @@
 package com.adaptionsoft.games;
 
-import com.adaptionsoft.games.contants.Constants;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class Game {
+public class OldGame {
     ArrayList players = new ArrayList();
-	// @Chamber todo: 以下四个属性待抽取：places，purses，inPenaltyBox，isGettingOutOfPenaltyBox. 双写，单读
+	// @Chamber todo: 以下四个属性待抽取：places，purses，inPenaltyBox，isGettingOutOfPenaltyBox
     int[] places = new int[6];
     int[] purses  = new int[6];
 
@@ -21,15 +19,8 @@ public class Game {
 
     int currentPlayer = 0;
 
-	// @Chamber todo: del
-	OldGame oldGame;
-    public Game(){
-		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			oldGame = new OldGame();
-			return;
-		}
 
+    public OldGame(){
     	for (int i = 0; i < 50; i++) {
 			popQuestions.addLast("Pop Question " + i);
 			scienceQuestions.addLast(("Science Question " + i));
@@ -47,10 +38,6 @@ public class Game {
 	}
 
 	public boolean add(String playerName) {
-		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			return oldGame.add(playerName);
-		}
 
 
 	    players.add(playerName);
@@ -63,17 +50,11 @@ public class Game {
 		return true;
 	}
 
-	private int howManyPlayers() {
+	public int howManyPlayers() {
 		return players.size();
 	}
 
 	public void roll(int roll) {
-		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			oldGame.roll(roll);
-			return;
-		}
-
 		System.out.println(players.get(currentPlayer) + " is the current player");
 		System.out.println("They have rolled a " + roll);
 
@@ -142,11 +123,6 @@ public class Game {
 	}
 
 	public boolean wasCorrectlyAnswered() {
-		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			return oldGame.wasCorrectlyAnswered();
-		}
-
 		if (isPenaltyBox()){
 			if (isGettingOutOfPenaltyBox) {
 				// @Chamber todo: 此处有bug，顺序是：1. 判断是否回答正确 2. 给予奖金 3. 移动至下位玩家
@@ -191,11 +167,6 @@ public class Game {
 
 	// @Chamber 错误回答
 	public boolean wrongAnswer(){
-		// @Chamber todo: del
-		if (Boolean.FALSE.equals(Constants.refactorSwitch)) {
-			return oldGame.wrongAnswer();
-		}
-
 		System.out.println("Question was incorrectly answered");
 		System.out.println(players.get(currentPlayer)+ " was sent to the penalty box");
 		inPenaltyBox[currentPlayer] = true;
