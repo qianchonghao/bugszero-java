@@ -88,27 +88,14 @@ public class Game {
 
 	}
 
-
 	private static boolean canGetOutOfPenaltyBox(int roll) {
 		return roll % 2 != 0;
 	}
 
-
-
 	private void movePlayerAndAskQuestion(int roll) {
-		movePlayer(roll);
-		askQuestion();
-	}
-
-	private void movePlayer(int roll) {
-
-		setPosition(getPosition()+roll);
-		if (getPosition() > 11) setPosition(getPosition() - 12) ;
-
-		System.out.println(getPlayerName()
-                + "'s new location is "
-                + getPosition());
+		currentPlayer().moveForwardByRoll(roll);
 		System.out.println("The category is " + currentCategory());
+		askQuestion();
 	}
 
 	private void askQuestion() {
@@ -146,42 +133,28 @@ public class Game {
 			if (isGettingOutOfPenaltyBox()) {
 				// @Chamber todo: 此处有bug，顺序是：1. 判断是否回答正确 2. 给予奖金 3. 移动至下位玩家
 				nextPlayer();
-				didAnswerCorrectV1();
-				return didPlayerWin();
+				currentPlayer().correctAnswerV1();
+				return currentPlayer().isWinner();
 			} else {
 				nextPlayer();
 				return true;
 			}
 		} else {
-			didAnswerCorrectV2();
-			boolean winner = didPlayerWin();
+			currentPlayer().correctAnswerV2();
+			boolean winner = currentPlayer().isWinner();
 			nextPlayer();
 			return winner;
 		}
 	}
 
-	private void didAnswerCorrectV1() {
-		System.out.println("Answer was correct!!!!");
-		setScore(getScore()+1);
-		System.out.println(getPlayerName()
-				+ " now has "
-				+ getScore()
-				+ " Gold Coins.");
-	}
 
 	private void nextPlayer() {
 		currentPlayer++;
 		if (currentPlayer == players.size()) currentPlayer = 0;
 	}
 
-	private void didAnswerCorrectV2() {
-		// @Chamber todo : 单词错误 correct
-		System.out.println("Answer was corrent!!!!");
-		setScore(getScore()+1);
-		System.out.println(getPlayerName()
-				+ " now has "
-				+ getScore()
-				+ " Gold Coins.");
+	private Player currentPlayer() {
+		return players.get(currentPlayer);
 	}
 
 	// @Chamber 错误回答
@@ -191,50 +164,30 @@ public class Game {
 			return oldGame.wrongAnswer();
 		}
 
-		System.out.println("Question was incorrectly answered");
-		System.out.println(getPlayerName() + " was sent to the penalty box");
-		setInPenaltyBox(true);
+		currentPlayer().wrongAnswer();
 		nextPlayer();
 		return true;
 	}
-	
-	private boolean didPlayerWin() {
-		return !(getScore() == 6);
-	}
+
 
 	private String getPlayerName() {
-		return players.get(currentPlayer).getName();
+		return currentPlayer().getName();
 	}
 
 	private boolean getInPenaltyBox() {
-		return players.get(currentPlayer).getInPenaltyBox();
+		return currentPlayer().getInPenaltyBox();
 	}
 
-	private void setInPenaltyBox(Boolean value){
-		players.get(currentPlayer).setInPenaltyBox(value);
-	}
-	
+	// @Chamber todo: extract PositionManager, then del
 	private Integer getPosition(){
-		return players.get(currentPlayer).getPosition();
-	}
-
-	private void setPosition(Integer position){
-		players.get(currentPlayer).setPosition(position);
-	}
-
-	private Integer getScore() {
-		return players.get(currentPlayer).getScore();
-	}
-
-	private void setScore(Integer score){
-		players.get(currentPlayer).setScore(score);
+		return currentPlayer().getPosition();
 	}
 
 	private boolean isGettingOutOfPenaltyBox() {
-		return players.get(currentPlayer).getGettingOutOfPenaltyBox();
+		return currentPlayer().getGettingOutOfPenaltyBox();
 	}
 
 	private void setGettingOutOfPenaltyBox(Boolean value) {
-		players.get(currentPlayer).setGettingOutOfPenaltyBox(value);
+		currentPlayer().setGettingOutOfPenaltyBox(value);
 	}
 }
