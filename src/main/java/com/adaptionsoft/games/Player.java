@@ -65,7 +65,7 @@ public class Player {
                 + getPosition());
     }
 
-    public Boolean isWinner(){
+    public Boolean notWinner(){
         return !(score == 6);
     }
 
@@ -85,7 +85,7 @@ public class Player {
                 + " Gold Coins.");
     }
 
-    public void correctAnswerV1() {
+    public void correctAnswer() {
         System.out.println("Answer was correct!!!!");
         score++;
         System.out.println(name
